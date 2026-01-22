@@ -18,14 +18,19 @@ const Home: React.FC = () => {
     setTasks(storedTasks);
   }, []);
 
-  const addTask = () => {
-    navigate("/addTask");
-  };
+  const addTask = () => navigate("/addTask");
 
   const deleteTask = (index: number) => {
+    if (!window.confirm("Delete this task?")) return;
+
     const updatedTasks = tasks.filter((_, i) => i !== index);
     setTasks(updatedTasks);
     localStorage.setItem("items", JSON.stringify(updatedTasks));
+  };
+
+  const logout = () => {
+    localStorage.clear();
+    navigate("/login");
   };
 
   return (
@@ -33,13 +38,24 @@ const Home: React.FC = () => {
       <div className="max-w-3xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-800">Todo List</h1>
-          <button
-            onClick={addTask}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
-          >
-            + Add Task
-          </button>
+
+          <div className="flex gap-3">
+            <button
+              onClick={addTask}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+            >
+              + Add Task
+            </button>
+
+            <button
+              onClick={logout}
+              className="text-red-500 font-semibold hover:underline"
+            >
+              Logout
+            </button>
+          </div>
         </div>
+
         {tasks.length === 0 ? (
           <div className="text-center text-gray-500 mt-20">
             <p className="text-lg">No tasks available</p>

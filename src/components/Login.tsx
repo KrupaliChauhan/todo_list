@@ -21,8 +21,6 @@ const Login: React.FC = () => {
       setError("Invalid username or password");
       return;
     }
-
-    // success
     localStorage.setItem("isLoggedIn", "true");
     localStorage.setItem("user", username);
 
