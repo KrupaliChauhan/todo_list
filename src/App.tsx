@@ -7,38 +7,37 @@ import Login from "./components/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 function App() {
   return (
-    <div>
-      <BrowserRouter>
-        <Routes>
-          <Route
-            path="/Home"
-            element={
-              <ProtectedRoute>
-                <Home />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/addTask"
-            element={
-              <ProtectedRoute>
-                <AddTask />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/editTask/:index"
-            element={
-              <ProtectedRoute>
-                <EditTask />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/login" element={<Login />} />
-          <Route path="/" element={<Login />} />
-        </Routes>
-      </BrowserRouter>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route
+          path="/home"
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/addTask"
+          element={
+            <ProtectedRoute>
+              <AddTask />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/editTask/:index"
+          element={
+            <ProtectedRoute>
+              <EditTask />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<Login />} />
+        <Route path="*" element={<Login />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

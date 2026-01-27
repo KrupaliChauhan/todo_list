@@ -1,59 +1,87 @@
-import React, { useState } from "react";
+import React from "react";
+import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import type { User } from "../types/User";
 
 const STATIC_USERNAME = "admin";
 const STATIC_PASSWORD = "1234";
 
 const Login: React.FC = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const {
+    control,
+    handleSubmit,
+    setError,
+    formState: { errors },
+  } = useForm<User>({
+    defaultValues: {
+      userName: "",
+      password: "",
+    },
+  });
 
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-    if (!username || !password) {
-      setError("All fields are required");
-      return;
-    }
-
-    if (username !== STATIC_USERNAME || password !== STATIC_PASSWORD) {
-      setError("Invalid username or password");
+  const handleLogin = (data: User) => {
+    if (
+      data.userName !== STATIC_USERNAME ||
+      data.password !== STATIC_PASSWORD
+    ) {
+      setError("password", {
+        type: "manual",
+        message: "Invalid username or password !!",
+      });
       return;
     }
     localStorage.setItem("isLoggedIn", "true");
-    localStorage.setItem("user", username);
+    localStorage.setItem("user", data.userName);
 
     navigate("/home");
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="bg-white p-6 rounded-lg shadow w-96">
+      <form
+        onSubmit={handleSubmit(handleLogin)}
+        className="bg-white p-6 rounded-lg shadow w-96"
+      >
         <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
 
-        {error && (
-          <p className="text-red-500 text-sm mb-3 text-center">{error}</p>
+        <Controller
+          name="userName"
+          control={control}
+          rules={{ required: "username requied" }}
+          render={({ field }) => (
+            <input
+              {...field}
+              type="text"
+              placeholder="Username"
+              className="w-full mb-3 p-2 border rounded"
+            />
+          )}
+        />
+        {errors.userName && (
+          <p className="text-red-600">{errors.userName.message}</p>
         )}
 
-        <input
-          type="text"
-          placeholder="Username"
-          className="w-full mb-3 p-2 border rounded"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+        <Controller
+          name="password"
+          control={control}
+          rules={{ required: "please fill the password" }}
+          render={({ field }) => (
+            <input
+              {...field}
+              type="password"
+              placeholder="Password"
+              className="w-full mb-4 p-2 border rounded"
+            />
+          )}
         />
-
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full mb-4 p-2 border rounded"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+        {errors.password && (
+          <p className="text-red-600">{errors.password.message}</p>
+        )}
 
         <button
-          onClick={handleLogin}
+          type="submit"
           className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
         >
           Login
@@ -62,7 +90,7 @@ const Login: React.FC = () => {
         <p className="text-xs text-gray-400 text-center mt-4">
           Demo login: admin / 1234
         </p>
-      </div>
+      </form>
     </div>
   );
 };

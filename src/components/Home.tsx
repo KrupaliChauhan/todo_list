@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-interface Task {
-  name: string;
-  desc: string;
-  dt: string;
-}
+import type { Task } from "../types/Task";
 
 const Home: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -29,7 +24,8 @@ const Home: React.FC = () => {
   };
 
   const logout = () => {
-    localStorage.clear();
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("user");
     navigate("/login");
   };
 
