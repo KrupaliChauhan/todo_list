@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import type { Task } from "../types/Task";
 import { Controller, useForm } from "react-hook-form";
+import { getTask, setTask } from "../services/taskStorage";
 
 const AddTask: React.FC = () => {
   const navigate = useNavigate();
@@ -19,10 +20,9 @@ const AddTask: React.FC = () => {
   });
 
   const handleClick = (data: Task) => {
-    const tasks: Task[] = JSON.parse(localStorage.getItem("items") || "[]");
-
+    const tasks: Task[] = getTask();
     tasks.push(data);
-    localStorage.setItem("items", JSON.stringify(tasks));
+    setTask(tasks);
     navigate("/home");
   };
 

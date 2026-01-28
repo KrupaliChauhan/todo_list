@@ -2,6 +2,7 @@ import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import type { User } from "../types/User";
+import { useAuth } from "../context/AuthContext";
 
 const STATIC_USERNAME = "admin";
 const STATIC_PASSWORD = "1234";
@@ -20,6 +21,7 @@ const Login: React.FC = () => {
   });
 
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleLogin = (data: User) => {
     if (
@@ -32,8 +34,7 @@ const Login: React.FC = () => {
       });
       return;
     }
-    localStorage.setItem("isLoggedIn", "true");
-    localStorage.setItem("user", data.userName);
+    login(data.userName);
 
     navigate("/home");
   };

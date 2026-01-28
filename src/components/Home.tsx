@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { Task } from "../types/Task";
+import { getTask, setTask } from "../services/taskStorage";
+import { useAuth } from "../context/AuthContext";
 
 const Home: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   useEffect(() => {
-    const storedTasks: Task[] = JSON.parse(
-      localStorage.getItem("items") || "[]",
-    );
-    setTasks(storedTasks);
+    setTasks(getTask());
   }, []);
 
   const addTask = () => navigate("/addTask");
@@ -20,12 +20,11 @@ const Home: React.FC = () => {
 
     const updatedTasks = tasks.filter((_, i) => i !== index);
     setTasks(updatedTasks);
-    localStorage.setItem("items", JSON.stringify(updatedTasks));
+    setTask(updatedTasks);
   };
 
-  const logout = () => {
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("user");
+  const handleLogout = () => {
+    logout();
     navigate("/login");
   };
 
@@ -44,7 +43,7 @@ const Home: React.FC = () => {
             </button>
 
             <button
-              onClick={logout}
+              onClick={handleLogout}
               className="text-red-500 font-semibold hover:underline"
             >
               Logout

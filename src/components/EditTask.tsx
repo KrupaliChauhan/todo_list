@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import type { Task } from "../types/Task";
 import { Controller, useForm } from "react-hook-form";
+import { getTask, setTask } from "../services/taskStorage";
 
 const EditTask: React.FC = () => {
   const { index } = useParams();
@@ -23,7 +24,7 @@ const EditTask: React.FC = () => {
   });
 
   useEffect(() => {
-    const tasks: Task[] = JSON.parse(localStorage.getItem("items") || "[]");
+    const tasks: Task[] = getTask();
 
     if (isNaN(taskIndex) || !tasks[taskIndex]) {
       navigate("/home");
@@ -34,10 +35,10 @@ const EditTask: React.FC = () => {
   }, [taskIndex, navigate, reset]);
 
   const handleUpdate = (data: Task) => {
-    const tasks: Task[] = JSON.parse(localStorage.getItem("items") || "[]");
+    const tasks: Task[] = getTask();
 
     tasks[taskIndex] = data;
-    localStorage.setItem("items", JSON.stringify(tasks));
+    setTask(tasks);
     navigate("/home");
   };
 
