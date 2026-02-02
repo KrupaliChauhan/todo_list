@@ -5,6 +5,7 @@ import AddTask from "./components/AddTask";
 import EditTask from "./components/EditTask";
 import Login from "./components/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Register from "./components/Register";
 function App() {
   return (
     <BrowserRouter>
@@ -36,6 +37,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Login />} />
         <Route path="*" element={<Login />} />
+        <Route path="/register" element={<Register />} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,11 +1,14 @@
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { registerApi } from "../api/auth";
 import type { User } from "../types/User";
 import { useAuth } from "../context/AuthContext";
-import { loginApi } from "../api/auth";
 
-const Login: React.FC = () => {
+const Register: React.FC = () => {
+  const navigate = useNavigate();
+  const { login } = useAuth();
+
   const {
     control,
     handleSubmit,
@@ -18,12 +21,9 @@ const Login: React.FC = () => {
     },
   });
 
-  const navigate = useNavigate();
-  const { login } = useAuth();
-
-  const handleLogin = async (data: User) => {
+  const handleRegister = async (data: User) => {
     try {
-      const result = await loginApi(data.userName, data.password);
+      const result = await registerApi(data.userName, data.password);
 
       login(result.user.username, result.token);
 
@@ -31,7 +31,7 @@ const Login: React.FC = () => {
     } catch (err) {
       setError("userName", {
         type: "manual",
-        message: "Invalid username or password",
+        message: "Username already exists",
       });
       console.log(err);
     }
@@ -40,59 +40,62 @@ const Login: React.FC = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <form
-        onSubmit={handleSubmit(handleLogin)}
+        onSubmit={handleSubmit(handleRegister)}
         className="bg-white p-6 rounded-lg shadow w-96"
       >
-        <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
+        <h2 className="text-2xl font-bold mb-4 text-center">Register</h2>
 
         <Controller
           name="userName"
           control={control}
-          rules={{ required: "username requied" }}
+          rules={{ required: "Username required" }}
           render={({ field }) => (
             <input
               {...field}
               type="text"
               placeholder="Username"
-              className="w-full mb-3 p-2 border rounded"
+              className="w-full mb-2 p-2 border rounded"
             />
           )}
         />
         {errors.userName && (
-          <p className="text-red-600">{errors.userName.message}</p>
+          <p className="text-red-600 text-sm">{errors.userName.message}</p>
         )}
 
         <Controller
           name="password"
           control={control}
-          rules={{ required: "please fill the password" }}
+          rules={{
+            required: "Password required",
+            minLength: { value: 4, message: "Min 4 characters" },
+          }}
           render={({ field }) => (
             <input
               {...field}
               type="password"
               placeholder="Password"
-              className="w-full mb-4 p-2 border rounded"
+              className="w-full mb-2 p-2 border rounded"
             />
           )}
         />
         {errors.password && (
-          <p className="text-red-600">{errors.password.message}</p>
+          <p className="text-red-600 text-sm">{errors.password.message}</p>
         )}
 
         <button
           type="submit"
           className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
         >
-          Login
+          Register
         </button>
 
         <p className="text-sm text-center mt-4">
-          Don't have an account?{" "}
+          Already have an account?{" "}
           <span
             className="text-blue-600 cursor-pointer"
-            onClick={() => navigate("/register")}
+            onClick={() => navigate("/login")}
           >
-            Register
+            Login
           </span>
         </p>
       </form>
@@ -100,4 +103,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login;
+export default Register;
