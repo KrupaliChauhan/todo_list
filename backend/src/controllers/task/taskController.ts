@@ -15,8 +15,26 @@ export const getTasks = async (req: Request, res: Response) => {
     const userId = req.user?.userId;
     if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
-    const tasks = await Task.find({ userId }).sort({ createdAt: -1 });
-    return res.json(tasks.map(toClient));
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const limit = Math.min(50, Math.max(1, Number(req.query.limit) || 10)); // max 50 safety
+    const skip = (page - 1) * limit;
+
+    const [total, tasks] = await Promise.all([
+      Task.countDocuments({ userId }),
+      Task.find({ userId }).sort({ createdAt: -1 }).skip(skip).limit(limit),
+    ]);
+
+    const totalPages = Math.max(1, Math.ceil(total / limit));
+
+    return res.json({
+      data: tasks.map(toClient),
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages,
+      },
+    });
   } catch {
     return res.status(500).json({ message: "server error" });
   }

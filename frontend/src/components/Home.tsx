@@ -11,32 +11,33 @@ const Home: React.FC = () => {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+
   const navigate = useNavigate();
   const { logout } = useAuth();
 
+  const fetchTasks = async (p = page, l = rowsPerPage) => {
+    setLoading(true);
+    try {
+      const res = await getTasksApi(p, l);
+      setTasks(res.data);
+      setTotal(res.pagination.total);
+      setTotalPages(res.pagination.totalPages);
+      setPage(res.pagination.page);
+      setRowsPerPage(res.pagination.limit);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    (async () => {
-      try {
-        setLoading(true);
-        const data = await getTasksApi();
-        setTasks(data);
-      } finally {
-        setLoading(false);
-      }
-    })();
+    fetchTasks(1, rowsPerPage);
   }, []);
 
-  const totalRows = tasks.length;
-  const totalPages = Math.max(1, Math.ceil(totalRows / rowsPerPage));
-
   useEffect(() => {
-    if (page > totalPages) setPage(totalPages);
-  }, [page, totalPages]);
-
-  const paginatedTasks = useMemo(() => {
-    const start = (page - 1) * rowsPerPage;
-    return tasks.slice(start, start + rowsPerPage);
-  }, [tasks, page, rowsPerPage]);
+    fetchTasks(page, rowsPerPage);
+  }, [page, rowsPerPage]);
 
   const addTask = () => navigate("/addTask");
 
@@ -44,7 +45,10 @@ const Home: React.FC = () => {
     if (!window.confirm("Delete this task?")) return;
 
     await deleteTaskApi(id);
-    setTasks((prev) => prev.filter((t) => t.id !== id));
+    const isLastItemOnPage = tasks.length === 1 && page > 1;
+    const newPage = isLastItemOnPage ? page - 1 : page;
+
+    await fetchTasks(newPage, rowsPerPage);
   };
 
   const handleLogout = () => {
@@ -71,6 +75,9 @@ const Home: React.FC = () => {
     for (let i = start; i <= end; i++) arr.push(i);
     return arr;
   }, [page, totalPages]);
+
+  const from = total === 0 ? 0 : (page - 1) * rowsPerPage + 1;
+  const to = Math.min(page * rowsPerPage, total);
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
@@ -101,7 +108,7 @@ const Home: React.FC = () => {
               "Loading..."
             ) : (
               <>
-                Total: <span className="font-semibold">{totalRows}</span> tasks
+                Total: <span className="font-semibold">{total}</span> tasks
               </>
             )}
           </div>
@@ -129,7 +136,7 @@ const Home: React.FC = () => {
           <div className="text-center text-gray-500 mt-16">
             Loading tasks...
           </div>
-        ) : totalRows === 0 ? (
+        ) : total === 0 ? (
           <div className="text-center text-gray-500 mt-20">
             <p className="text-lg">No tasks available</p>
             <p className="text-sm">Click “Add Task” to get started</p>
@@ -151,7 +158,7 @@ const Home: React.FC = () => {
                 </thead>
 
                 <tbody className="divide-y">
-                  {paginatedTasks.map((task, idx) => {
+                  {tasks.map((task, idx) => {
                     const srNo = (page - 1) * rowsPerPage + idx + 1;
                     return (
                       <tr key={task.id} className="text-sm hover:bg-gray-50">
@@ -191,15 +198,9 @@ const Home: React.FC = () => {
 
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-4">
               <div className="text-sm text-gray-600">
-                Showing{" "}
-                <span className="font-semibold">
-                  {(page - 1) * rowsPerPage + 1}
-                </span>{" "}
-                to{" "}
-                <span className="font-semibold">
-                  {Math.min(page * rowsPerPage, totalRows)}
-                </span>{" "}
-                of <span className="font-semibold">{totalRows}</span>
+                Showing <span className="font-semibold">{from}</span> to{" "}
+                <span className="font-semibold">{to}</span> of{" "}
+                <span className="font-semibold">{total}</span>
               </div>
 
               <div className="flex items-center gap-2">

@@ -1,8 +1,20 @@
 import { api } from "./api";
 import type { Task } from "../types/Task";
 
-export const getTasksApi = async () => {
-  const res = await api.get<Task[]>("/tasks");
+export type PaginatedTasksResponse = {
+  data: Task[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+};
+
+export const getTasksApi = async (page: number, limit: number) => {
+  const res = await api.get<PaginatedTasksResponse>("/tasks", {
+    params: { page, limit },
+  });
   return res.data;
 };
 
