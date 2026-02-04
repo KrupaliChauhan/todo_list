@@ -2,13 +2,12 @@ import React, { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import type { Task } from "../types/Task";
 import { Controller, useForm } from "react-hook-form";
-import { getTask, setTask } from "../services/taskStorage";
+// import { getTask, setTask } from "../services/taskStorage";
+import { getTaskByIdApi, updateTaskApi } from "../api/tasks";
 
 const EditTask: React.FC = () => {
-  const { index } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
-
-  const taskIndex = Number(index);
 
   const {
     control,
@@ -24,21 +23,29 @@ const EditTask: React.FC = () => {
   });
 
   useEffect(() => {
-    const tasks: Task[] = getTask();
-
-    if (isNaN(taskIndex) || !tasks[taskIndex]) {
+    if (!id) {
       navigate("/home");
       return;
     }
+    (async () => {
+      try {
+        const task = await getTaskByIdApi(id);
+        reset({
+          name: task.name,
+          desc: task.desc,
+          dt: task.dt,
+        });
+      } catch (err) {
+        console.log(err);
+        navigate("/home");
+      }
+    })();
+  }, [id, navigate, reset]);
 
-    reset(tasks[taskIndex]);
-  }, [taskIndex, navigate, reset]);
+  const handleUpdate = async (data: Task) => {
+    if (!id) return;
 
-  const handleUpdate = (data: Task) => {
-    const tasks: Task[] = getTask();
-
-    tasks[taskIndex] = data;
-    setTask(tasks);
+    await updateTaskApi(id, data);
     navigate("/home");
   };
 

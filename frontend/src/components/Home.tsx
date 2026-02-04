@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { Task } from "../types/Task";
-import { getTask, setTask } from "../services/taskStorage";
+// import { getTask, setTask } from "../services/taskStorage";
 import { useAuth } from "../context/AuthContext";
+import { deleteTaskApi, getTasksApi } from "../api/tasks";
 
 const Home: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -10,17 +11,18 @@ const Home: React.FC = () => {
   const { logout } = useAuth();
 
   useEffect(() => {
-    setTasks(getTask());
+    (async () => {
+      const data = await getTasksApi();
+      setTasks(data);
+    })();
   }, []);
 
   const addTask = () => navigate("/addTask");
 
-  const deleteTask = (index: number) => {
+  const deleteTask = async (id: string) => {
     if (!window.confirm("Delete this task?")) return;
-
-    const updatedTasks = tasks.filter((_, i) => i !== index);
-    setTasks(updatedTasks);
-    setTask(updatedTasks);
+    await deleteTaskApi(id);
+    setTasks((prev) => prev.filter((t) => t.id !== id));
   };
 
   const handleLogout = () => {
@@ -58,9 +60,9 @@ const Home: React.FC = () => {
           </div>
         ) : (
           <div className="space-y-4">
-            {tasks.map((task, index) => (
+            {tasks.map((task) => (
               <div
-                key={index}
+                key={task.id}
                 className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex justify-between items-start"
               >
                 <div>
@@ -70,17 +72,16 @@ const Home: React.FC = () => {
                   <p className="text-gray-600 mt-1">{task.desc}</p>
                   <p className="text-sm text-gray-400 mt-2">Due: {task.dt}</p>
                 </div>
-
                 <div className="flex gap-3">
                   <button
-                    onClick={() => navigate(`/editTask/${index}`)}
+                    onClick={() => navigate(`/editTask/${task.id}`)}
                     className="text-blue-500 hover:text-blue-700 font-semibold"
                   >
                     Edit
                   </button>
 
                   <button
-                    onClick={() => deleteTask(index)}
+                    onClick={() => deleteTask(task.id)}
                     className="text-red-500 hover:text-red-700 font-semibold"
                   >
                     Delete

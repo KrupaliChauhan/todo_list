@@ -2,7 +2,8 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import type { Task } from "../types/Task";
 import { Controller, useForm } from "react-hook-form";
-import { getTask, setTask } from "../services/taskStorage";
+// import { getTask, setTask } from "../services/taskStorage";
+import { createTaskApi } from "../api/tasks";
 
 const AddTask: React.FC = () => {
   const navigate = useNavigate();
@@ -19,10 +20,8 @@ const AddTask: React.FC = () => {
     },
   });
 
-  const handleClick = (data: Task) => {
-    const tasks: Task[] = getTask();
-    tasks.push(data);
-    setTask(tasks);
+  const handleClick = async (data: Task) => {
+    await createTaskApi(data);
     navigate("/home");
   };
 

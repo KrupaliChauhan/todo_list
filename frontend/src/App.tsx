@@ -27,7 +27,7 @@ function App() {
           }
         />
         <Route
-          path="/editTask/:index"
+          path="/editTask/:id"
           element={
             <ProtectedRoute>
               <EditTask />

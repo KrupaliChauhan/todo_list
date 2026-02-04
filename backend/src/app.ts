@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import authRouter from "./routers/authRouter.js";
+import taskRouter from "./routers/taskRouter.js";
 
 const app = express();
 
@@ -14,5 +15,7 @@ app.get("/", (_req, res) => {
 });
 
 app.use("/api/auth", authRouter);
+
+app.use("/api/tasks", taskRouter);
 
 export default app;
